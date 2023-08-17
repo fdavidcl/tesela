@@ -24,6 +24,11 @@ margin: 2em; */
   gap: 5px;
 }
 
+nav {
+  background-color: gray;
+  padding: 5px;
+}
+
 .list-box {
   flex: 1 1;
   flex-basis: 30em;

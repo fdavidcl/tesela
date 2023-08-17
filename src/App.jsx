@@ -1,6 +1,6 @@
-import { createContext, useContext, useReducer, useState } from 'react'
-import './App.css'
-
+import { createContext, useContext, useReducer, useState } from "react";
+import "./App.css";
+import { saveData } from "./storage";
 
 const EditModeContext = createContext(false);
 
@@ -21,8 +21,7 @@ const bookmarkReducer = (state, action) => {
         ...state.lists.slice(listIndex + 1),
       ],
     };
-    
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(newState));
+    saveData(newState);
 
     return newState;
   }
@@ -39,7 +38,8 @@ const bookmarkReducer = (state, action) => {
         ...state.lists.slice(listIndex + 1),
       ],
     };
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(newState));
+
+    saveData(newState);
     return newState;
   }
   if (action.type == "lists/add") {
@@ -57,19 +57,18 @@ const bookmarkReducer = (state, action) => {
         },
       ],
     };
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(newState));
+
+    saveData(newState);
     return newState;
   }
   if (action.type == "lists/delete") {
     let { index } = action.payload;
     const newState = {
       ...state,
-      lists: [
-        ...state.lists.slice(0, index),
-        ...state.lists.slice(index+1)
-      ],
+      lists: [...state.lists.slice(0, index), ...state.lists.slice(index + 1)],
     };
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(newState));
+
+    saveData(newState);
     return newState;
   }
 
@@ -95,9 +94,8 @@ const NewBookmark = ({ addBookmark }) => {
   const [url, setUrl] = useState("");
   const [title, setTitle] = useState("");
   const editMode = useContext(EditModeContext);
-  
-  if (!editMode)
-    return null;
+
+  if (!editMode) return null;
 
   return (
     <div>
@@ -135,9 +133,8 @@ const List = ({ title, links, addBookmark }) => {
 const NewList = ({ addList }) => {
   const [title, setTitle] = useState("");
   const editMode = useContext(EditModeContext);
-  
-  if (!editMode)
-    return null;
+
+  if (!editMode) return null;
 
   return (
     <div>
@@ -151,19 +148,18 @@ const NewList = ({ addList }) => {
   );
 };
 const NavBar = ({ toggleEditMode }) => {
-  return <nav>
-    <button onClick={toggleEditMode}>Toggle editing</button>
-  </nav>
-}
+  return (
+    <nav>
+      <button onClick={toggleEditMode}>Toggle editing</button>
+    </nav>
+  );
+};
 
 const App = ({ initialState }) => {
-  const [state, dispatch] = useReducer(
-    bookmarkReducer,
-    initialState
-  );
-  const [editStatus, setEditStatus] = useState(false)
+  const [state, dispatch] = useReducer(bookmarkReducer, initialState);
+  const [editStatus, setEditStatus] = useState(false);
 
-  const toggleEditMode = () => setEditStatus(!editStatus)
+  const toggleEditMode = () => setEditStatus(!editStatus);
 
   const addToList = (listIndex) => (title, href) =>
     dispatch({
@@ -174,8 +170,8 @@ const App = ({ initialState }) => {
     dispatch({ type: "lists/add", payload: { title } });
   return (
     <EditModeContext.Provider value={editStatus}>
+      <NavBar toggleEditMode={toggleEditMode} />
       <div className="container">
-        <NavBar toggleEditMode={toggleEditMode} />
         {state.lists.map((l, index) => (
           <List key={index} {...l} addBookmark={addToList(index)} />
         ))}
@@ -188,4 +184,4 @@ const App = ({ initialState }) => {
 // const container = document.getElementById("app");
 // const root = ReactDOM.createRoot(container);
 // root.render(<App initialState={savedData || initialState} />);
-export default App
+export default App;
